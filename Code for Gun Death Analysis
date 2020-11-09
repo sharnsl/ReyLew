@@ -1,0 +1,137 @@
+
+#remove NA
+guns1 <- Guns %>% drop_na()
+
+#filters
+guns2<- guns1 %>% select(month, age, education)
+guns3 <- guns1 %>% select(age,education,sex,race,intent)
+
+
+
+#summary data
+mean(guns1$age)
+median(guns1$age)
+median(guns1$education)
+mode(guns1$education)
+guns1 %>% group_by(race) %>% summarize(ave.age = mean(age))
+guns1 %>% group_by(race, sex) %>% summarize(ave.age= mean(age))
+guns1 %>% group_by(race, sex) %>% summarize(count =n())
+guns1 %>% group_by(race, intent) %>% summarize(count =n())
+guns1 %>% group_by(sex, intent) %>% summarize(count =n())
+
+#review/exploration of data
+#boxplots age v race and age v sex
+ggplot(guns1, aes(x = age, y = race)) + geom_boxplot(aes(group=race))
+ggplot(guns1, aes(x = age, y = sex)) + geom_boxplot(aes(group=sex))
+#boxplots education v race and education v sex
+ggplot(guns1, aes(x = education, y = race)) + geom_boxplot(aes(group=race))
+ggplot(guns1, aes(x = education, y = sex)) + geom_boxplot(aes(group=sex))
+#histogram
+d <- ggplot(guns1, aes(x = age))
+d + geom_histogram(binwidth = 1)
+#QQ Plot
+ggplot(guns1, aes(sample = age)) + geom_qq()
+#scatter plot2
+g <- ggplot(guns1, aes(x = age, y = race))
+g + geom_point()
+g <- ggplot(guns1, aes(x = education, y = age))
+g + geom_point()
+#correlations
+cor.test(guns1$age, guns1$month, method="pearson", use = "complete.obs")
+# -0.00884 = no correlation between the age at time of death and month of the year
+cor.test(guns1$age, guns1$education, method="pearson", use = "complete.obs")
+#0.23669 = weak correlation between the age at time of death and education level
+chart.Correlation(guns2, histogram=FALSE, method="pearson")
+# simple linear regression
+lin_reg <- lm(age ~ education, guns1)
+print(lin_reg)
+lin_reg1 <- lm(age ~ month, guns1)
+print(lin_reg)
+summary(lin_reg)
+summary(lin_reg1)
+#graphs
+ggplot(guns3,aes(x=age,color=race,group=race, y= ..count..))+
+  geom_bar()
+ggplot(guns3,aes(x=age,color=race,group=race, y= ..count..))+
+  geom_density()
+ggplot(guns3,aes(x=age,color=intent,group=intent, y= ..count..))+
+  geom_density()
+ggplot(guns3,aes(x=age,color=intent,group=intent, y= ..count..))+
+  geom_bar()
+ggplot(guns3,aes(x=education,color=race,group=race, y= ..count..))+
+  geom_bar()
+ggplot(guns3,aes(x=education,color=race,group=race, y= ..count..))+
+  geom_density()
+ggplot(guns3,aes(x=education,color=intent,group=intent, y= ..count..))+
+  geom_bar()
+ggplot(guns3,aes(x=education,color=intent,group=intent, y= ..count..))+
+  geom_density()
+
+#modeling
+#logistic regression
+#data wrangling
+guns3$SexR <- NA
+guns3$SexR[guns3$sex=='M'] <- 1
+guns3$SexR[guns3$sex=='F'] <- 0
+
+guns3$intentR <- NA
+guns3$intentR[guns3$intent=='NA'] <-0
+guns3$intentR[guns3$intent=='Undetermined'] <-1
+guns3$intentR[guns3$intent=='Accidental'] <-2
+guns3$intentR[guns3$intent=='Homicide'] <-3
+guns3$intentR[guns3$intent=='Suicide'] <-4
+
+guns3$raceR <- NA
+guns3$raceR[guns3$race=='Asian/Pacific Islander'] <-1
+guns3$raceR[guns3$race=='Black'] <-2
+guns3$raceR[guns3$race=='Hispanic'] <-3
+guns3$raceR[guns3$race=='Native American/Native Alaskan'] <-4
+guns3$raceR[guns3$race=='White'] <-5
+
+#basic logistic model
+mylogit <- glm(SexR ~ intentR, data=guns3, family="binomial")
+mylogit1 <- glm(SexR ~ raceR, data=guns3, family="binomial")
+mylogit2 <- glm(SexR ~ age, data=guns3, family="binomial")
+
+#prediction 
+probabilities <- predict(mylogit, type = "response")
+guns3$Predicted <- ifelse(probabilities > .5, "pos", "neg")
+guns3$PredictedR <- NA
+guns3$PredictedR[guns3$Predicted=='pos'] <- 1
+guns3$PredictedR[guns3$Predicted=='neg'] <- 0
+
+#convert to factors
+guns3$PredictedR <- as.factor(guns3$PredictedR)
+guns3$SexR <- as.factor(guns3$SexR)
+#confusion matrix
+conf_mat <- caret::confusionMatrix(guns3$PredictedR,guns3$SexR)
+conf_mat
+
+#Logit linearity
+guns4 <- guns3 %>%
+  dplyr::select_if(is.numeric)  
+predictors <- colnames(guns4)
+guns5 <- guns4 %>%
+  mutate(logit=log(probabilities/(1-probabilities))) %>%
+  gather(key = "predictors", value = "predictor.value", -logit)  
+
+#graph to assess for linearity
+ggplot(guns5, aes(logit, predictor.value)) + geom_point(size=.5, alpha=.5) + geom_smooth(method = "loess")+ theme_bw()+facet_wrap(~predictors, scales = "free_y")
+
+#graph the errors
+plot(mylogit2$residuals)
+
+#Durbin-Watson Test
+dwtest(mylogit2, alternative = "two.sided")
+
+#Screen for outliers
+infl <- influence.measures(mylogit2)
+summary(infl)
+
+#interpreting the output
+summary(mylogit2)
+
+#graph the logistic model
+logi.hist.plot(guns5$sex, guns5$age, boxp = FALSE, type = "hist", col="gray" )
+
+

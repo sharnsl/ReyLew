@@ -1,3 +1,12 @@
+#background on data
+#education numerical representation
+#1: Less than High School
+#2: Graduated from High School or equivalent
+#3: Some College
+#4: At least graduated from College
+#5: Not available
+
+
 
 #remove NA
 guns1 <- Guns %>% drop_na()
@@ -58,6 +67,10 @@ ggplot(guns3,aes(x=age,color=intent,group=intent, y= ..count..))+
   geom_density()
 ggplot(guns3,aes(x=age,color=intent,group=intent, y= ..count..))+
   geom_bar()
+  ggplot(guns3,aes(x=age,color=sex,group=sex, y= ..count..))+
+  geom_density()
+ggplot(guns3,aes(x=age,color=sex,group=sex, y= ..count..))+
+  geom_bar()
 ggplot(guns3,aes(x=education,color=race,group=race, y= ..count..))+
   geom_bar()
 ggplot(guns3,aes(x=education,color=race,group=race, y= ..count..))+
@@ -66,6 +79,10 @@ ggplot(guns3,aes(x=education,color=intent,group=intent, y= ..count..))+
   geom_bar()
 ggplot(guns3,aes(x=education,color=intent,group=intent, y= ..count..))+
   geom_density()
+ggplot(guns3,aes(x=education,color=sex,group=sex, y= ..count..))+
+  geom_density()
+ggplot(guns3,aes(x=education,color=sex,group=sex, y= ..count..))+
+  geom_bar()
 
 #modeling
 #logistic regression
@@ -88,13 +105,13 @@ guns3$raceR[guns3$race=='Hispanic'] <-3
 guns3$raceR[guns3$race=='Native American/Native Alaskan'] <-4
 guns3$raceR[guns3$race=='White'] <-5
 
-#basic logistic model
+#basic logistic model review
 mylogit <- glm(SexR ~ intentR, data=guns3, family="binomial")
 mylogit1 <- glm(SexR ~ raceR, data=guns3, family="binomial")
 mylogit2 <- glm(SexR ~ age, data=guns3, family="binomial")
 
-#prediction 
-probabilities <- predict(mylogit, type = "response")
+#prediction: can can the age of the victim perdict thier sex 
+probabilities <- predict(mylogit2, type = "response")
 guns3$Predicted <- ifelse(probabilities > .5, "pos", "neg")
 guns3$PredictedR <- NA
 guns3$PredictedR[guns3$Predicted=='pos'] <- 1

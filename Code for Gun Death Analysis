@@ -1,3 +1,18 @@
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(Ecdat)
+library(tidyverse)
+install.packages("PerformanceAnalytics")
+library("PerformanceAnalytics")
+library("caret")
+library("magrittr")
+library("lmtest")
+install.packages('popbio')
+library("popbio")
+library("e1071")
+library(caret)
+
 #background on data
 #education numerical representation
 #1: Less than High School
@@ -7,14 +22,30 @@
 #5: Not available
 
 
-
 #remove NA
 guns1 <- Guns %>% drop_na()
 
 #filters
+gun <- guns1 %>% select(month,intent)
 guns2<- guns1 %>% select(month, age, education)
 guns3 <- guns1 %>% select(age,education,sex,race,intent)
-
+b.gun <- filter(guns1, race == "Black")
+w.gun <- filter(guns1, race == "White")
+a.gun <- filter(guns1, race == "Asian/Pacific Islander")
+h.gun <- filter(guns1, race == "Hispanic")
+n.gun <- filter(guns1, race == "Native American/Native Alaskan")
+jan.gun <- filter(guns1, month == "1")
+feb.gun <- filter(guns1, month == "2")
+mar.gun <- filter(guns1, month == "3")
+apr.gun <- filter(guns1, month == "4")
+may.gun <- filter(guns1, month == "5")
+jun.gun <- filter(guns1, month == "6")
+jul.gun <- filter(guns1, month == "7")
+aug.gun <- filter(guns1, month == "8")
+sep.gun <- filter(guns1, month == "9")
+oct.gun <- filter(guns1, month == "10")
+nov.gun <- filter(guns1, month == "11")
+dec.gun <- filter(guns1, month == "12")
 
 
 #summary data
@@ -22,11 +53,110 @@ mean(guns1$age)
 median(guns1$age)
 median(guns1$education)
 mode(guns1$education)
+min(guns1$age)
+max(guns1$age)
+i.m <-gun %>% group_by(month,intent) %>% summarize(count =n())
 guns1 %>% group_by(race) %>% summarize(ave.age = mean(age))
 guns1 %>% group_by(race, sex) %>% summarize(ave.age= mean(age))
 guns1 %>% group_by(race, sex) %>% summarize(count =n())
-guns1 %>% group_by(race, intent) %>% summarize(count =n())
+r.b <- guns1 %>% group_by(race, intent) %>% summarize(count =n())
 guns1 %>% group_by(sex, intent) %>% summarize(count =n())
+#summary by month race and sex
+jan <- jan.gun %>% group_by(race, sex) %>% summarize(count =n())
+feb <- feb.gun %>% group_by(race, sex) %>% summarize(count =n())
+mar <- mar.gun %>% group_by(race, sex) %>% summarize(count =n())
+apr <- apr.gun %>% group_by(race, sex) %>% summarize(count =n())
+may <- may.gun %>% group_by(race, sex) %>% summarize(count =n())
+jun <- jun.gun %>% group_by(race, sex) %>% summarize(count =n())
+jul <- jul.gun %>% group_by(race, sex) %>% summarize(count =n())
+aug <- aug.gun %>% group_by(race, sex) %>% summarize(count =n())
+sep <- sep.gun %>% group_by(race, sex) %>% summarize(count =n())
+oct <- oct.gun %>% group_by(race, sex) %>% summarize(count =n())
+nov <- nov.gun %>% group_by(race, sex) %>% summarize(count =n())
+dec <- dec.gun %>% group_by(race, sex) %>% summarize(count =n())
+#summary by month race and intent
+jan.i <- jan.gun %>% group_by(race, intent) %>% summarize(count =n())
+feb.i <- feb.gun %>% group_by(race, intent) %>% summarize(count =n())
+mar.i <- mar.gun %>% group_by(race, intent) %>% summarize(count =n())
+apr.i <- apr.gun %>% group_by(race, intent) %>% summarize(count =n())
+may.i <- may.gun %>% group_by(race, intent) %>% summarize(count =n())
+jun.i <- jun.gun %>% group_by(race, intent) %>% summarize(count =n())
+jul.i <- jul.gun %>% group_by(race, intent) %>% summarize(count =n())
+aug.i <- aug.gun %>% group_by(race, intent) %>% summarize(count =n())
+sep.i <- sep.gun %>% group_by(race, intent) %>% summarize(count =n())
+oct.i <- oct.gun %>% group_by(race, intent) %>% summarize(count =n())
+nov.i <- nov.gun %>% group_by(race, intent) %>% summarize(count =n())
+dec.i <- dec.gun %>% group_by(race, intent) %>% summarize(count =n())
+
+#total gun death breakdown by race and gender
+#asian male = 1 % 
+#asian female = 0.2 %
+#black male = 20.8 %
+#black female = 2.2 % 
+#hispanic male = 7.9 %
+#hispanic female = 1.1 %
+#native male = 0.8 %
+#native female =0.1%
+#white male = 55.1 %
+#white female = 10.6 %
+
+#total gun deaths breakdown by gender only
+#female death = 14.1% 
+#male death = 85.7 %
+
+#female death breakdown
+# 1.5 % accidental
+# 37.1 % homicide
+# 60.2 % suicide
+# 1.2 % undetermined 
+
+#male death breakdown
+# 1.6 % accidental
+# 34.5 % homicide
+# 63.1 % suicide
+# 0.7 % undetermined
+
+#asian death breakdown
+# 0.9 % accidental
+# 42 % homicide
+# 56.3 % suicide
+# 0.7 % undetermined
+
+#black death breakdown
+# 1.4 % accidental
+# 83.8 % homicide
+# 14.3 % suicide
+# 0.5 % undetermined
+
+#hispanic death breakdown
+# 1.6 % accidental
+# 62.4 % homicide
+# 35.2 % suicide
+# 0.8 % undetermined
+
+#native death breakdown
+# 2.3 % accidental
+# 35.5 % homicide
+# 60.6 %suicide
+# 1.5 % undetermined
+
+#white death breakdown
+# 1.7 %  accidental
+# 13.8 % homicide
+# 83.6 % suicide
+# 0.9 % undetermined
+
+#race breakdown by time of year
+#there were more deaths in July than any other month for both white and black americans
+#there were more deaths in June than any other month for asian americans
+#there were more deaths in August than any other month for hispanic americans
+#there were more deaths in November than any other month for native americans
+
+#intent breakdown by time of year
+#there were more suicide deaths in July than any other time of the year
+#there were more accidental deaths in December than any other time of the year
+#there were moew homicide deaths in July than any other time of the year
+
 
 #review/exploration of data
 #boxplots age v race and age v sex
@@ -40,7 +170,7 @@ d <- ggplot(guns1, aes(x = age))
 d + geom_histogram(binwidth = 1)
 #QQ Plot
 ggplot(guns1, aes(sample = age)) + geom_qq()
-#scatter plot2
+#scatter plots
 g <- ggplot(guns1, aes(x = age, y = race))
 g + geom_point()
 g <- ggplot(guns1, aes(x = education, y = age))
@@ -58,31 +188,94 @@ lin_reg1 <- lm(age ~ month, guns1)
 print(lin_reg)
 summary(lin_reg)
 summary(lin_reg1)
-#graphs
+
+#t test
+t.dep <- t.test(guns1$age, guns1$education, paired = TRUE)
+print(t.dep)
+t.dep1 <- t.test(b.gun$age, b.gun$education, paired = TRUE)
+print(t.dep1)
+t.dep2 <- t.test(a.gun$age, a.gun$education, paired = TRUE)
+print(t.dep2)
+t.dep3 <- t.test(h.gun$age, h.gun$education, paired = TRUE)
+print(t.dep3)
+t.dep4 <- t.test(n.gun$age, n.gun$education, paired = TRUE)
+print(t.dep4)
+t.dep5 <- t.test(w.gun$age, w.gun$education, paired = TRUE)
+print(t.dep5)
+# for all races reject the null hypothesis. There is no significant relationship between age and education at time of death 
+
+#bar and density graphs for analysis
+#comparison of age of death as it relates to races 
 ggplot(guns3,aes(x=age,color=race,group=race, y= ..count..))+
   geom_bar()
 ggplot(guns3,aes(x=age,color=race,group=race, y= ..count..))+
   geom_density()
+#the peak age of death for white americans is 50
+#the peak age of death for black americans is 22.5
+#the peak age of death for hispanic americans is 22.5
+#the peak age of death for native americans is 27
+#the peak age of death for asian americans is 27 
+
+#comparison of age of death as it relates to intent
 ggplot(guns3,aes(x=age,color=intent,group=intent, y= ..count..))+
   geom_density()
 ggplot(guns3,aes(x=age,color=intent,group=intent, y= ..count..))+
   geom_bar()
-  ggplot(guns3,aes(x=age,color=sex,group=sex, y= ..count..))+
+#the peak age of death for homicide is 22.5
+#the peak age of death for suicide is 50 with a secondary peak at age 27
+
+#comparison of age of death as it relates to sex
+ggplot(guns3,aes(x=age,color=sex,group=sex, y= ..count..))+
   geom_density()
 ggplot(guns3,aes(x=age,color=sex,group=sex, y= ..count..))+
   geom_bar()
+#the peak age of death for males is 22.5, with a secondary peak at 50
+#the peak age of death for females is 50, with a secondary peak at 27
+
+#comparison of education level as it relates to race
 ggplot(guns3,aes(x=education,color=race,group=race, y= ..count..))+
   geom_bar()
 ggplot(guns3,aes(x=education,color=race,group=race, y= ..count..))+
   geom_density()
+#highest peak of education level at time of death for all races, except hispanic americans is completion of HS
+#highest peak of education level at time of death for hispanic americans is less than a HS education 
+
+#comparison of education level as it relates to intent
 ggplot(guns3,aes(x=education,color=intent,group=intent, y= ..count..))+
   geom_bar()
 ggplot(guns3,aes(x=education,color=intent,group=intent, y= ..count..))+
   geom_density()
+#completion of HS is the highest peak for all intent
+
+#comparison of education level as it relates to sex
 ggplot(guns3,aes(x=education,color=sex,group=sex, y= ..count..))+
   geom_density()
 ggplot(guns3,aes(x=education,color=sex,group=sex, y= ..count..))+
   geom_bar()
+#competion of HS is the highest peak for both sexes, but females have a secondary peak at some college completed
+
+#bargraphs broken down for each race
+#education
+ggplot(a.gun, aes(x=education,)) + geom_bar()
+ggplot(b.gun, aes(x=education,)) + geom_bar()
+ggplot(h.gun, aes(x=education,)) + geom_bar()
+ggplot(n.gun, aes(x=education,)) + geom_bar()
+ggplot(w.gun, aes(x=education,)) + geom_bar()
+#asian americans experience a relatively even number of deaths across all education levels
+#black americans who have not graduated from HS or only have a HS education are significantly more affected
+#hispanic americans who have not graduated from HS or only have a HS education are significanlt more affected
+#native americans who have only completed HS are most affected
+#white armericans who have only completed HS are most affected
+#
+#age
+ggplot(a.gun, aes(x=age,)) + geom_bar()
+ggplot(b.gun, aes(x=age,)) + geom_bar()
+ggplot(h.gun, aes(x=age,)) + geom_bar()
+ggplot(n.gun, aes(x=age,)) + geom_bar()
+ggplot(w.gun, aes(x=age,)) + geom_bar()
+#the highest incident of gun deaths for every race studied is in individuals under the age of 30 except for those individuals identified as white. Their highest incident peak was around age 50
+
+
 
 #modeling
 #logistic regression
@@ -105,12 +298,10 @@ guns3$raceR[guns3$race=='Hispanic'] <-3
 guns3$raceR[guns3$race=='Native American/Native Alaskan'] <-4
 guns3$raceR[guns3$race=='White'] <-5
 
-#basic logistic model review
-mylogit <- glm(SexR ~ intentR, data=guns3, family="binomial")
-mylogit1 <- glm(SexR ~ raceR, data=guns3, family="binomial")
+#basic logistic model
 mylogit2 <- glm(SexR ~ age, data=guns3, family="binomial")
 
-#prediction: can can the age of the victim perdict thier sex 
+#prediction: given a person's age could you accuratly predict their sex
 probabilities <- predict(mylogit2, type = "response")
 guns3$Predicted <- ifelse(probabilities > .5, "pos", "neg")
 guns3$PredictedR <- NA
@@ -120,8 +311,9 @@ guns3$PredictedR[guns3$Predicted=='neg'] <- 0
 #convert to factors
 guns3$PredictedR <- as.factor(guns3$PredictedR)
 guns3$SexR <- as.factor(guns3$SexR)
+
 #confusion matrix
-conf_mat <- caret::confusionMatrix(guns3$PredictedR,guns3$SexR)
+conf_mat <- caret::confusionMatrix(guns3$SexR,guns3$PredictR)
 conf_mat
 
 #Logit linearity
@@ -148,7 +340,11 @@ summary(infl)
 #interpreting the output
 summary(mylogit2)
 
+
 #graph the logistic model
 logi.hist.plot(guns5$sex, guns5$age, boxp = FALSE, type = "hist", col="gray" )
+
+#this model was unsuccessful: to better predict the sex of the victim by the age, the data would need to be relatively even between the sexes. This data set is heavily skewed towards males.
+
 
 

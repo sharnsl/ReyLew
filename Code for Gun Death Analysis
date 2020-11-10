@@ -280,44 +280,50 @@ ggplot(w.gun, aes(x=age,)) + geom_bar()
 #modeling
 #logistic regression
 #data wrangling
-guns3$SexR <- NA
-guns3$SexR[guns3$sex=='M'] <- 1
-guns3$SexR[guns3$sex=='F'] <- 0
+m.guns <- filter(guns3, sex=='M')
+f.guns <- filter(guns3, sex=='F')
+guns.1 <- sample_n(m.guns,14427)
+guns.2 <- rbind(guns.1, f.guns)
 
-guns3$intentR <- NA
-guns3$intentR[guns3$intent=='NA'] <-0
-guns3$intentR[guns3$intent=='Undetermined'] <-1
-guns3$intentR[guns3$intent=='Accidental'] <-2
-guns3$intentR[guns3$intent=='Homicide'] <-3
-guns3$intentR[guns3$intent=='Suicide'] <-4
+guns.2$SexR <- NA
+guns.2$SexR[guns.2$sex=='M'] <- 1
+guns.2$SexR[guns.2$sex=='F'] <- 0
 
-guns3$raceR <- NA
-guns3$raceR[guns3$race=='Asian/Pacific Islander'] <-1
-guns3$raceR[guns3$race=='Black'] <-2
-guns3$raceR[guns3$race=='Hispanic'] <-3
-guns3$raceR[guns3$race=='Native American/Native Alaskan'] <-4
-guns3$raceR[guns3$race=='White'] <-5
+guns.2$intentR <- NA
+guns.2$intentR[guns.2$intent=='NA'] <-0
+guns.2$intentR[guns.2$intent=='Undetermined'] <-1
+guns.2$intentR[guns.2$intent=='Accidental'] <-2
+guns.2$intentR[guns.2$intent=='Homicide'] <-3
+guns.2$intentR[guns.2$intent=='Suicide'] <-4
+
+guns.2$raceR <- NA
+guns.2$raceR[guns.2$race=='Asian/Pacific Islander'] <-1
+guns.2$raceR[guns.2$race=='Black'] <-2
+guns.2$raceR[guns.2$race=='Hispanic'] <-3
+guns.2$raceR[guns.2$race=='Native American/Native Alaskan'] <-4
+guns.2$raceR[guns.2$race=='White'] <-5
 
 #basic logistic model
-mylogit2 <- glm(SexR ~ age, data=guns3, family="binomial")
 
-#prediction: given a person's age could you accuratly predict their sex
+mylogit2 <- glm(SexR ~ age, data=guns.2, family="binomial")
+
+#prediction: accurately predict the sex of the victim given the age
 probabilities <- predict(mylogit2, type = "response")
-guns3$Predicted <- ifelse(probabilities > .5, "pos", "neg")
-guns3$PredictedR <- NA
-guns3$PredictedR[guns3$Predicted=='pos'] <- 1
-guns3$PredictedR[guns3$Predicted=='neg'] <- 0
+guns.2$Predicted <- ifelse(probabilities > .5, "pos", "neg")
+guns.2$PredictedR <- NA
+guns.2$PredictedR[guns.2$Predicted=='pos'] <- 1
+guns.2$PredictedR[guns.2$Predicted=='neg'] <- 0
 
 #convert to factors
-guns3$PredictedR <- as.factor(guns3$PredictedR)
-guns3$SexR <- as.factor(guns3$SexR)
+guns.2$PredictedR <- as.factor(guns.2$PredictedR)
+guns.2$SexR <- as.factor(guns.2$SexR)
 
 #confusion matrix
-conf_mat <- caret::confusionMatrix(guns3$SexR,guns3$PredictR)
+conf_mat <- caret::confusionMatrix(guns.2$SexR,guns.2$PredictR)
 conf_mat
 
 #Logit linearity
-guns4 <- guns3 %>%
+guns4 <- guns.2 %>%
   dplyr::select_if(is.numeric)  
 predictors <- colnames(guns4)
 guns5 <- guns4 %>%
@@ -344,7 +350,9 @@ summary(mylogit2)
 #graph the logistic model
 logi.hist.plot(guns5$sex, guns5$age, boxp = FALSE, type = "hist", col="gray" )
 
-#this model was unsuccessful: to better predict the sex of the victim by the age, the data would need to be relatively even between the sexes. This data set is heavily skewed towards males.
+
+
+
 
 
 

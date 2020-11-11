@@ -48,6 +48,8 @@ nov.gun <- filter(guns1, month == "11")
 dec.gun <- filter(guns1, month == "12")
 
 
+
+
 #summary data
 mean(guns1$age)
 median(guns1$age)
@@ -88,6 +90,7 @@ oct.i <- oct.gun %>% group_by(race, intent) %>% summarize(count =n())
 nov.i <- nov.gun %>% group_by(race, intent) %>% summarize(count =n())
 dec.i <- dec.gun %>% group_by(race, intent) %>% summarize(count =n())
 
+i.m <-gun %>% group_by(month,intent) %>% summarize(count =n())
 #total gun death breakdown by race and gender
 #asian male = 1 % 
 #asian female = 0.2 %
@@ -97,8 +100,8 @@ dec.i <- dec.gun %>% group_by(race, intent) %>% summarize(count =n())
 #hispanic female = 1.1 %
 #native male = 0.8 %
 #native female =0.1%
-#white male = 55.1 %
-#white female = 10.6 %
+#white male = 10.6 %
+#white female = 55.1 %
 
 #total gun deaths breakdown by gender only
 #female death = 14.1% 
@@ -111,7 +114,7 @@ dec.i <- dec.gun %>% group_by(race, intent) %>% summarize(count =n())
 # 1.2 % undetermined 
 
 #male death breakdown
-# 1.6 % accidental
+#  1.6 % accidental
 # 34.5 % homicide
 # 63.1 % suicide
 # 0.7 % undetermined
@@ -147,10 +150,10 @@ dec.i <- dec.gun %>% group_by(race, intent) %>% summarize(count =n())
 # 0.9 % undetermined
 
 #race breakdown by time of year
-#there were more deaths in July than any other month for both white and black americans
-#there were more deaths in June than any other month for asian americans
-#there were more deaths in August than any other month for hispanic americans
-#there were more deaths in November than any other month for native americans
+#there are more deaths in July than any other month for both white and black americans
+#there are more deaths in June than any other month for asian americans
+#there are more deaths in August than any other month for hispanic americans
+#there are more deaths in November than any other month for native americans
 
 #intent breakdown by time of year
 #there were more suicide deaths in July than any other time of the year
@@ -209,7 +212,7 @@ print(t.dep5)
 ggplot(guns3,aes(x=age,color=race,group=race, y= ..count..))+
   geom_bar()
 ggplot(guns3,aes(x=age,color=race,group=race, y= ..count..))+
-  geom_density()
+  geom_density()+ ylab ("total gun count") + ggtitle ("Comparison of Age and Race")
 #the peak age of death for white americans is 50
 #the peak age of death for black americans is 22.5
 #the peak age of death for hispanic americans is 22.5
@@ -217,16 +220,16 @@ ggplot(guns3,aes(x=age,color=race,group=race, y= ..count..))+
 #the peak age of death for asian americans is 27 
 
 #comparison of age of death as it relates to intent
-ggplot(guns3,aes(x=age,color=intent,group=intent, y= ..count..))+
-  geom_density()
+ggplot(guns.2,aes(x=age,color=intent,group=intent, y= ..count..))+
+  geom_density()+ ylab ("total gun count") + ggtitle ("Comparison of Age and Intent")
 ggplot(guns3,aes(x=age,color=intent,group=intent, y= ..count..))+
   geom_bar()
 #the peak age of death for homicide is 22.5
 #the peak age of death for suicide is 50 with a secondary peak at age 27
 
 #comparison of age of death as it relates to sex
-ggplot(guns3,aes(x=age,color=sex,group=sex, y= ..count..))+
-  geom_density()
+ggplot(guns.2,aes(x=age,color=sex,group=sex, y= ..count..))+
+  geom_density()+ ylab ("total gun count") + ggtitle ("Comparison of Age and Sex")
 ggplot(guns3,aes(x=age,color=sex,group=sex, y= ..count..))+
   geom_bar()
 #the peak age of death for males is 22.5, with a secondary peak at 50
@@ -235,32 +238,32 @@ ggplot(guns3,aes(x=age,color=sex,group=sex, y= ..count..))+
 #comparison of education level as it relates to race
 ggplot(guns3,aes(x=education,color=race,group=race, y= ..count..))+
   geom_bar()
-ggplot(guns3,aes(x=education,color=race,group=race, y= ..count..))+
-  geom_density()
+ggplot(guns.2,aes(x=education,color=race,group=race, y= ..count..))+
+  geom_density() + ylab ("total gun count") + ggtitle ("Comparison of Education Level and Race")
 #highest peak of education level at time of death for all races, except hispanic americans is completion of HS
 #highest peak of education level at time of death for hispanic americans is less than a HS education 
 
 #comparison of education level as it relates to intent
 ggplot(guns3,aes(x=education,color=intent,group=intent, y= ..count..))+
   geom_bar()
-ggplot(guns3,aes(x=education,color=intent,group=intent, y= ..count..))+
-  geom_density()
+ggplot(guns.2,aes(x=education,color=intent,group=intent, y= ..count..),na.rm=TRUE)+
+  geom_density()+ ylab ("total gun count") + ggtitle ("Comparison of Education Level and Intent")
 #completion of HS is the highest peak for all intent
 
 #comparison of education level as it relates to sex
-ggplot(guns3,aes(x=education,color=sex,group=sex, y= ..count..))+
-  geom_density()
+ggplot(guns.2,aes(x=education,color=sex,group=sex, y= ..count..))+
+  geom_density() + ylab ("total gun count") + ggtitle ("Comparison of Education Level and Sex")
 ggplot(guns3,aes(x=education,color=sex,group=sex, y= ..count..))+
   geom_bar()
 #competion of HS is the highest peak for both sexes, but females have a secondary peak at some college completed
 
 #bargraphs broken down for each race
 #education
-ggplot(a.gun, aes(x=education,)) + geom_bar()
-ggplot(b.gun, aes(x=education,)) + geom_bar()
-ggplot(h.gun, aes(x=education,)) + geom_bar()
-ggplot(n.gun, aes(x=education,)) + geom_bar()
-ggplot(w.gun, aes(x=education,)) + geom_bar()
+ggplot(a.gun, aes(x=education)) + geom_bar(color=" dark blue", fill=('dark blue'))+ ylab ("total gun count") + ggtitle ("Education Level & Gun Death Among Asians")
+ggplot(b.gun, aes(x=education,)) + geom_bar(color=" light blue", fill=('light blue'))+ ylab ("total gun count") + ggtitle ("Education Level & Gun Death Among AA")
+ggplot(h.gun, aes(x=education,)) + geom_bar(color=" dark blue", fill=('dark blue'))+ ylab ("total gun count") + ggtitle ("Education Level & Gun Death Among HA")
+ggplot(n.gun, aes(x=education,)) + geom_bar(color=" light blue", fill=('light blue'))+ ylab ("total gun count") + ggtitle ("Education Level & Gun Death Among NA")
+ggplot(w.gun, aes(x=education,)) + geom_bar(color=" dark blue", fill=('dark blue'))+ ylab ("total gun count") + ggtitle ("Education Level & Gun Death Among WA")
 #asian americans experience a relatively even number of deaths across all education levels
 #black americans who have not graduated from HS or only have a HS education are significantly more affected
 #hispanic americans who have not graduated from HS or only have a HS education are significanlt more affected
@@ -268,11 +271,11 @@ ggplot(w.gun, aes(x=education,)) + geom_bar()
 #white armericans who have only completed HS are most affected
 #
 #age
-ggplot(a.gun, aes(x=age,)) + geom_bar()
-ggplot(b.gun, aes(x=age,)) + geom_bar()
-ggplot(h.gun, aes(x=age,)) + geom_bar()
-ggplot(n.gun, aes(x=age,)) + geom_bar()
-ggplot(w.gun, aes(x=age,)) + geom_bar()
+ggplot(a.gun, aes(x=age,)) + geom_bar(color=" dark orange", fill = "dark orange")+ ylab ("total gun count") + ggtitle ("Age & Gun Death Among Asians")
+ggplot(b.gun, aes(x=age,)) + geom_bar(color="orange", fill = "orange")+ ylab ("total gun count") + ggtitle ("Age & Gun Death Among AA")
+ggplot(h.gun, aes(x=age,)) + geom_bar(color=" dark orange", fill = "dark orange")+ ylab ("total gun count") + ggtitle ("Age & Gun Death Among HA")
+ggplot(n.gun, aes(x=age,)) + geom_bar(color="orange", fill = "orange")+ ylab ("total gun count") + ggtitle ("Age & Gun Death Among NA")
+ggplot(w.gun, aes(x=age,)) + geom_bar(color=" dark orange", fill = "dark orange")+ ylab ("total gun count") + ggtitle ("Age & Gun Death Among WA")
 #the highest incident of gun deaths for every race studied is in individuals under the age of 30 except for those individuals identified as white. Their highest incident peak was around age 50
 
 
@@ -307,7 +310,7 @@ guns.2$raceR[guns.2$race=='White'] <-5
 
 mylogit2 <- glm(SexR ~ age, data=guns.2, family="binomial")
 
-#prediction: accurately predict the sex of the victim given the age
+#prediction 
 probabilities <- predict(mylogit2, type = "response")
 guns.2$Predicted <- ifelse(probabilities > .5, "pos", "neg")
 guns.2$PredictedR <- NA
@@ -350,9 +353,6 @@ summary(mylogit2)
 #graph the logistic model
 logi.hist.plot(guns5$sex, guns5$age, boxp = FALSE, type = "hist", col="gray" )
 
-
-
-
-
-
+#export dataframe to use in tableau
+write.csv(guns.2,"C:\\Users\\sharn\\OneDrive\\Documents\\gunsedit.csv", row.names = FALSE)
 

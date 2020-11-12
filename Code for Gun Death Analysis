@@ -11,7 +11,8 @@ library("lmtest")
 install.packages('popbio')
 library("popbio")
 library("e1071")
-library(caret)
+install.packages('scales')
+library(scales)
 
 #background on data
 #education numerical representation
@@ -28,12 +29,15 @@ guns1 <- Guns %>% drop_na()
 #filters
 gun <- guns1 %>% select(month,intent)
 guns2<- guns1 %>% select(month, age, education)
-guns3 <- guns1 %>% select(age,education,sex,race,intent)
-b.gun <- filter(guns1, race == "Black")
-w.gun <- filter(guns1, race == "White")
-a.gun <- filter(guns1, race == "Asian/Pacific Islander")
-h.gun <- filter(guns1, race == "Hispanic")
-n.gun <- filter(guns1, race == "Native American/Native Alaskan")
+guns3 <- guns1 %>% select(month,age,education,sex,race,intent)
+g1 <- filter(guns.2, intent == "Homicide")
+g2 <- filter(guns.2, intent == "Suicide")
+guns.3 <- rbind(g1,g2)
+b.gun <- filter(guns.3, race == "Black")
+w.gun <- filter(guns.3, race == "White")
+a.gun <- filter(guns.3, race == "Asian/Pacific Islander")
+h.gun <- filter(guns.3, race == "Hispanic")
+n.gun <- filter(guns.3, race == "Native American/Native Alaskan")
 jan.gun <- filter(guns1, month == "1")
 feb.gun <- filter(guns1, month == "2")
 mar.gun <- filter(guns1, month == "3")
@@ -211,8 +215,8 @@ print(t.dep5)
 #comparison of age of death as it relates to races 
 ggplot(guns3,aes(x=age,color=race,group=race, y= ..count..))+
   geom_bar()
-ggplot(guns3,aes(x=age,color=race,group=race, y= ..count..))+
-  geom_density()+ ylab ("total gun count") + ggtitle ("Comparison of Age and Race")
+ggplot(guns.2,aes(x=age,color=race,group=race, y= ..count..))+
+  geom_density()+ ylab ("Total Gun Death Count") + ggtitle ("Comparison of Age and Race")+xlab("Age in Years")
 #the peak age of death for white americans is 50
 #the peak age of death for black americans is 22.5
 #the peak age of death for hispanic americans is 22.5
@@ -220,32 +224,32 @@ ggplot(guns3,aes(x=age,color=race,group=race, y= ..count..))+
 #the peak age of death for asian americans is 27 
 
 #comparison of age of death as it relates to intent
-ggplot(guns.2,aes(x=age,color=intent,group=intent, y= ..count..))+
-  geom_density()+ ylab ("total gun count") + ggtitle ("Comparison of Age and Intent")
-ggplot(guns3,aes(x=age,color=intent,group=intent, y= ..count..))+
-  geom_bar()
+ggplot(guns.3,aes(x=age,color=intent,group=intent, y= ..count..))+
+  geom_density()+ ylab ("Total Gun Death Count") + ggtitle ("Comparison of Age and Intent") + xlab("Age in Years")
+ggplot(guns.3,aes(x=age,color=intent,fill=intent,group=intent, y= ..count..))+
+  geom_bar(position = "dodge")+ ylab("Total Gun Death Count") + xlab("Age in Years") + ggtitle("Comparison of Age and Intent")
 #the peak age of death for homicide is 22.5
 #the peak age of death for suicide is 50 with a secondary peak at age 27
 
 #comparison of age of death as it relates to sex
 ggplot(guns.2,aes(x=age,color=sex,group=sex, y= ..count..))+
-  geom_density()+ ylab ("total gun count") + ggtitle ("Comparison of Age and Sex")
+  geom_density()+xlab("Age in Years") + ylab ("Total Gun Death Count") + ggtitle ("Comparison of Age and Sex")
 ggplot(guns3,aes(x=age,color=sex,group=sex, y= ..count..))+
   geom_bar()
 #the peak age of death for males is 22.5, with a secondary peak at 50
 #the peak age of death for females is 50, with a secondary peak at 27
 
 #comparison of education level as it relates to race
-ggplot(guns3,aes(x=education,color=race,group=race, y= ..count..))+
-  geom_bar()
+ggplot(guns.2,aes(x=education,color=race,fill=race,group=race, y= ..count..))+
+  geom_bar(position = "dodge") + xlab("Education") + ylab("Total Gun Death Count")
 ggplot(guns.2,aes(x=education,color=race,group=race, y= ..count..))+
-  geom_density() + ylab ("total gun count") + ggtitle ("Comparison of Education Level and Race")
+  geom_density() + ylab ("Total Gun Death Count") + ggtitle ("Comparison of Education Level and Race") + xlab("Education") 
 #highest peak of education level at time of death for all races, except hispanic americans is completion of HS
 #highest peak of education level at time of death for hispanic americans is less than a HS education 
 
 #comparison of education level as it relates to intent
-ggplot(guns3,aes(x=education,color=intent,group=intent, y= ..count..))+
-  geom_bar()
+ggplot(guns.3,aes(x=education,color=intent,fill= intent, group=intent, y= ..count..))+
+  geom_bar(position = "dodge") + ylab("Total Gun Death Count") + xlab("Education")
 ggplot(guns.2,aes(x=education,color=intent,group=intent, y= ..count..),na.rm=TRUE)+
   geom_density()+ ylab ("total gun count") + ggtitle ("Comparison of Education Level and Intent")
 #completion of HS is the highest peak for all intent
@@ -253,31 +257,62 @@ ggplot(guns.2,aes(x=education,color=intent,group=intent, y= ..count..),na.rm=TRU
 #comparison of education level as it relates to sex
 ggplot(guns.2,aes(x=education,color=sex,group=sex, y= ..count..))+
   geom_density() + ylab ("total gun count") + ggtitle ("Comparison of Education Level and Sex")
-ggplot(guns3,aes(x=education,color=sex,group=sex, y= ..count..))+
-  geom_bar()
+ggplot(guns.2,aes(x=education,color=sex,fill=sex,group=sex, y= ..count..))+
+  geom_bar(position = "dodge") +xlab("Education")+ylab("Total Gun Death Count")+ ggtitle("Comparison of Education Level and Sex")
 #competion of HS is the highest peak for both sexes, but females have a secondary peak at some college completed
+
+#comparison of time of year and race
+ggplot(guns.2,aes(x=month,color=race,group=race, y= ..count..))+
+  geom_density()+ ylab ("total gun death count") + ggtitle ("Comparison of Time of Year and Race")
+ggplot(guns.2,aes(x=month,color=race,group=race, y= ..count..))+
+  geom_bar() + ylab ("total gun death count") + ggtitle ("Comparison of Education Level and Race")
 
 #bargraphs broken down for each race
 #education
-ggplot(a.gun, aes(x=education)) + geom_bar(color=" dark blue", fill=('dark blue'))+ ylab ("total gun count") + ggtitle ("Education Level & Gun Death Among Asians")
-ggplot(b.gun, aes(x=education,)) + geom_bar(color=" light blue", fill=('light blue'))+ ylab ("total gun count") + ggtitle ("Education Level & Gun Death Among AA")
-ggplot(h.gun, aes(x=education,)) + geom_bar(color=" dark blue", fill=('dark blue'))+ ylab ("total gun count") + ggtitle ("Education Level & Gun Death Among HA")
-ggplot(n.gun, aes(x=education,)) + geom_bar(color=" light blue", fill=('light blue'))+ ylab ("total gun count") + ggtitle ("Education Level & Gun Death Among NA")
-ggplot(w.gun, aes(x=education,)) + geom_bar(color=" dark blue", fill=('dark blue'))+ ylab ("total gun count") + ggtitle ("Education Level & Gun Death Among WA")
+ggplot(a.gun, aes(x=education,)) + geom_bar(color=" dark blue", fill=('dark blue'))+ ylab ("Total Gun Death Count") + ggtitle ("Education Level & Gun Death Among AA") + xlab("Education") 
+ggplot(b.gun, aes(x=education,)) + geom_bar(color=" dark blue", fill=('dark blue'))+ ylab ("Total Gun Death Count") + ggtitle ("Education Level & Gun Death Among BA")+ xlab("Education")
+ggplot(h.gun, aes(x=education,)) + geom_bar(color=" dark blue", fill=('dark blue'))+ ylab ("Total Gun Death Count") + ggtitle ("Education Level & Gun Death Among HA")+ xlab("Education")
+ggplot(n.gun, aes(x=education,)) + geom_bar(color=" dark blue", fill=('dark blue'))+ ylab ("Total Gun Death Count") + ggtitle ("Education Level & Gun Death Among NA")+ xlab("Education")
+ggplot(w.gun, aes(x=education,)) + geom_bar(color=" dark blue", fill=('dark blue'))+ ylab ("Total Gun Death Count") + ggtitle ("Education Level & Gun Death Among WA")+ xlab("Education")
 #asian americans experience a relatively even number of deaths across all education levels
 #black americans who have not graduated from HS or only have a HS education are significantly more affected
 #hispanic americans who have not graduated from HS or only have a HS education are significanlt more affected
 #native americans who have only completed HS are most affected
 #white armericans who have only completed HS are most affected
-#
+
 #age
-ggplot(a.gun, aes(x=age,)) + geom_bar(color=" dark orange", fill = "dark orange")+ ylab ("total gun count") + ggtitle ("Age & Gun Death Among Asians")
-ggplot(b.gun, aes(x=age,)) + geom_bar(color="orange", fill = "orange")+ ylab ("total gun count") + ggtitle ("Age & Gun Death Among AA")
-ggplot(h.gun, aes(x=age,)) + geom_bar(color=" dark orange", fill = "dark orange")+ ylab ("total gun count") + ggtitle ("Age & Gun Death Among HA")
-ggplot(n.gun, aes(x=age,)) + geom_bar(color="orange", fill = "orange")+ ylab ("total gun count") + ggtitle ("Age & Gun Death Among NA")
-ggplot(w.gun, aes(x=age,)) + geom_bar(color=" dark orange", fill = "dark orange")+ ylab ("total gun count") + ggtitle ("Age & Gun Death Among WA")
+ggplot(a.gun, aes(x=age,)) + geom_bar(color=" dark orange", fill = "dark orange")+ ylab ("Total Gun Death Count") + ggtitle ("Age & Gun Death Among AA")+ xlab("Age in Years")
+ggplot(b.gun, aes(x=age,)) + geom_bar(color="dark orange", fill = "orange")+ ylab ("Total Gun Death Count") + ggtitle ("Age & Gun Death Among BA")+ xlab("Age in Years")
+ggplot(h.gun, aes(x=age,)) + geom_bar(color=" dark orange", fill = "dark orange")+ ylab ("Total Gun Death Count") + ggtitle ("Age & Gun Death Among HA")+ xlab("Age in Years")
+ggplot(n.gun, aes(x=age,)) + geom_bar(color="dark orange", fill = "orange")+ ylab ("Total Gun Death Count") + ggtitle ("Age & Gun Death Among NA")+ xlab("Age in Years")
+ggplot(w.gun, aes(x=age,)) + geom_bar(color=" dark orange", fill = "dark orange")+ ylab ("Total Gun Death Count") + ggtitle ("Age & Gun Death Among WA")+ xlab("Age in Years")
 #the highest incident of gun deaths for every race studied is in individuals under the age of 30 except for those individuals identified as white. Their highest incident peak was around age 50
 
+#month
+ggplot(a.gun, aes(x=month,)) + geom_bar(color=" dark blue", fill = "dark blue")+ scale_x_continuous(breaks = c(1,2,3,4,5,6,7,8,9,10,11,12), labels = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")) + ylab ("Total Gun Death Count") + ggtitle ("Month of Gun Death Among Asians") + xlab("Month")
+ggplot(b.gun, aes(x=month,)) + geom_bar(color="light blue", fill = "light blue")+ scale_x_continuous(breaks = c(1,2,3,4,5,6,7,8,9,10,11,12))+ ylab ("total gun count") + ggtitle ("Month of Gun Death Among AA")
+ggplot(h.gun, aes(x=month,)) + geom_bar(color=" blue", fill = "blue")+ scale_x_continuous(breaks = c(1,2,3,4,5,6,7,8,9,10,11,12))+ ylab ("total gun count") + ggtitle ("Month of Gun Death Among HA")
+ggplot(n.gun, aes(x=month,)) + geom_bar(color="sky blue", fill = "sky blue")+ scale_x_continuous(breaks = c(1,2,3,4,5,6,7,8,9,10,11,12))+ ylab ("total gun count") + ggtitle ("Month of Gun Death Among NA")
+ggplot(w.gun, aes(x=month,)) + geom_bar(color=" dark blue", fill = "dark blue")+ scale_x_continuous(breaks = c(1,2,3,4,5,6,7,8,9,10,11,12), labels = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))+ ylab ("Total Gun Death Count") + ggtitle ("Month of Gun Death Among WA")
+
+#month v sex
+ggplot(guns.3,aes(x=month,fill=sex,color=sex,group=sex, y= ..count..))+
+  geom_bar(position = 'dodge')+ scale_x_continuous(breaks = c(1,2,3,4,5,6,7,8,9,10,11,12),labels = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))+ ylab ("Total gun Death Count") + ggtitle ("Comparison of Month of Death and Sex") + xlab("Month") + theme(axis.text.x = element_text(angle=45))
+
+#month v intent
+ggplot(guns.2,aes(x=month,fill=intent,color=intent,group=intent, y= ..count..))+
+  geom_bar(position = 'dodge')+ scale_x_continuous(breaks = c(1,2,3,4,5,6,7,8,9,10,11,12))+ ylab ("total gun count") + ggtitle ("Comparison of Month of Death and Intent")
+#month v race v intent
+ggplot(a.gun,aes(x=month,fill=intent,color=intent,group=intent, y= ..count..))+
+  geom_bar(position = 'dodge')+ scale_x_continuous(breaks = c(1,2,3,4,5,6,7,8,9,10,11,12), labels = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))+ ylab ("Total gun Death Count") + ggtitle ("Month of Death and Intent Among AA") + xlab("Month") +  theme(axis.text.x = element_text(angle=45))
+ggplot(b.gun,aes(x=month,fill=intent,color=intent,group=intent, y= ..count..))+
+  geom_bar(position = 'dodge')+ scale_x_continuous(breaks = c(1,2,3,4,5,6,7,8,9,10,11,12), labels = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))+ ylab ("Total gun Death Count") + ggtitle ("Month of Death and Intent Among BA") + xlab("Month") +  theme(axis.text.x = element_text(angle=45))
+ggplot(h.gun,aes(x=month,fill=intent,color=intent,group=intent, y= ..count..))+
+  geom_bar(position = 'dodge')+ scale_x_continuous(breaks = c(1,2,3,4,5,6,7,8,9,10,11,12), labels = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))+ ylab ("Total gun Death Count") + ggtitle ("Month of Death and Intent Among HA") + xlab("Month")+  theme(axis.text.x = element_text(angle=45))
+ggplot(n.gun,aes(x=month,fill=intent,color=intent,group=intent, y= ..count..))+
+  geom_bar(position = 'dodge')+ scale_x_continuous(breaks = c(1,2,3,4,5,6,7,8,9,10,11,12), labels = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))+ ylab ("Total gun Death Count") + ggtitle ("Month of Death and Intent Among NA") + xlab("Month")+  theme(axis.text.x = element_text(angle=45))
+ggplot(w.gun,aes(x=month,fill=intent,color=intent,group=intent, y= ..count..))+
+  geom_bar(position = 'dodge')+ scale_x_continuous(breaks = c(1,2,3,4,5,6,7,8,9,10,11,12), labels = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))+ ylab ("Total gun Death Count") + ggtitle ("Month of Death and Intent Among WA") + xlab("Month") + theme(axis.text.x = element_text(angle=45))
 
 
 #modeling
@@ -353,6 +388,6 @@ summary(mylogit2)
 #graph the logistic model
 logi.hist.plot(guns5$sex, guns5$age, boxp = FALSE, type = "hist", col="gray" )
 
-#export dataframe to use in tableau
+#export code to use in Tableau
 write.csv(guns.2,"C:\\Users\\sharn\\OneDrive\\Documents\\gunsedit.csv", row.names = FALSE)
 
